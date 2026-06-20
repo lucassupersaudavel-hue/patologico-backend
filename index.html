@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PATOLÓGICO - IA Biologia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center p-4">
+
+    <header class="w-full max-w-xl flex justify-between items-center border-b border-emerald-500/30 pb-4 mb-6">
+        <h1 class="text-2xl font-black tracking-wider text-emerald-400">PATOLÓGICO</h1>
+        <span class="text-xs text-slate-400">Lab de IA Móvel</span>
+    </header>
+
+    <main class="w-full max-w-xl bg-slate-800/50 rounded-2xl border border-slate-700 p-4 shadow-xl">
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1 text-slate-300">Nível Acadêmico:</label>
+                <select id="nivel" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-emerald-400 focus:outline-none">
+                    <option>Ensino Fundamental</option>
+                    <option>Ensino Médio</option>
+                    <option>Universitário</option>
+                    <option>Pós-graduação</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1 text-slate-300">O que quer estudar?</label>
+                <textarea id="pergunta" placeholder="Ex: Como funciona a fotossíntese?" class="w-full h-24 bg-slate-900 border border-slate-600 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none resize-none"></textarea>
+            </div>
+
+            <button onclick="enviarPergunta()" id="btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition">
+                Consultar Inteligência
+            </button>
+        </div>
+
+        <div id="resultado" class="hidden mt-6 p-4 bg-slate-900/80 rounded-xl border border-emerald-500/20">
+            <h3 class="text-xs uppercase font-bold text-emerald-400 mb-1">Explicação:</h3>
+            <p id="respostaTexto" class="text-slate-200 leading-relaxed whitespace-pre-line text-sm"></p>
+        </div>
+    </main>
+
+    <script>
+        async function enviarPergunta() {
+            const pergunta = document.getElementById('pergunta').value;
+            const nivel = document.getElementById('nivel').value;
+            const btn = document.getElementById('btn');
+            const resultado = document.getElementById('resultado');
+            const respostaTexto = document.getElementById('respostaTexto');
+
+            if (!pergunta.trim()) return;
+
+            btn.innerText = 'Processando...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('http://127.0.0.1:5000/api/perguntar', {
+
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pergunta, nivel })
+                });
+                const data = await res.json();
+                respostaTexto.innerText = data.resposta || 'Erro ao obter resposta.';
+                resultado.classList.remove('hidden');
+            } catch (err) {
+                alert('Certifique-se de que o backend está rodando no Termux!');
+            } finally {
+                btn.innerText = 'Consultar Inteligência';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
