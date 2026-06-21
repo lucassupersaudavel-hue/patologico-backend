@@ -1,4 +1,4 @@
-require('dotenv').config()
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { Groq } from 'groq-sdk';
@@ -32,7 +32,8 @@ app.post('/api/perguntar', async (req, res) => {
   }
 });
 
-app.listen(3000, '127.0.0.1', () => {
-  console.log('API DO PATOLÓGICO ATIVA NA PORTA 3000 🚀');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`API DO PATOLÓGICO ATIVA NA PORTA ${PORT} 🚀`);
 });
 
