@@ -2,6 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { Groq } from 'groq-sdk';
+import { fileURLToPath } from 'url'; // 👈 Movido para o topo
+import path from 'path';             // 👈 Movido para o topo
 
 const app = express();
 
@@ -10,6 +12,9 @@ app.use(cors({
   origin: 'http://127.0.0.1:8080'
 }));
 app.use(express.json());
+// 🏠 Faz o link principal do Render carregar o seu site index.html
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+app.use(express.static(__dirname));
 
 // 🔑 Configuração da Groq
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
