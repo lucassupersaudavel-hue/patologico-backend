@@ -1,44 +1,72 @@
-import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import { Groq } from 'groq-sdk';
-import { fileURLToPath } from 'url'; // 👈 Movido para o topo
-import path from 'path';             // 👈 Movido para o topo
+import dotenv from 'dotenv';
+import Groq from 'groq-sdk';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+dotenv.config();
 
 const app = express();
+const port = process.env.PORT || 3000;
 
-// 🔓 Essencial: Libera o CORS para o 8080 conseguir conversar com o 5000
-app.use(cors({
-  origin: 'http://127.0.0.1:8080'
-}));
+// Configuração do caminho dos arquivos estáticos
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(cors());
 app.use(express.json());
-// 🏠 Faz o link principal do Render carregar o seu site index.html
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Serve o frontend estático (index.html, estilos, etc)
 app.use(express.static(__dirname));
 
-// 🔑 Configuração da Groq
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
-// 🧠 Rota que vai processar a pergunta
-app.post('/api/perguntar', async (req, res) => {
-  const { pergunta, nivel } = req.body; // 🔍 Aqui está como "pergunta"
-  try {
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        { role: 'system', content: `Você é o PATOLÓGICO, uma IA de Biologia para o nível: ${nivel}.` },
-        { role: 'user', content: pergunta } // 🔍 Mude de "pregunta" para "pergunta"
-      ],
-      model: 'llama-3.3-70b-versatile',
-    });
-    res.json({ resposta: chatCompletion.choices[0]?.message?.content || "Sem resposta." });
-  } catch (error) {
-    console.error("Erro na Groq:", error);
-    res.status(500).json({ error: 'Erro interno na IA.' });
-  }
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`API DO PATOLÓGICO ATIVA NA PORTA ${PORT} 🚀`);
+// Histórico em memória da conversa
+let conversationHistory = [
+    {
+        role: "system",
+        content: "Você é o PATOLÓGICO, um assistente virtual especialista em estudos, focado em patologia e ciências da saúde. Seja didático, direto, inteligente e encorajador."
+    }
+];
+
+app.post('/api/chat', async (req, res) => {
+    try {
+        const { message } = req.body;
+
+        if (!message) {
+            return res.status(400).json({ error: 'A mensagem não pode estar vazia.' });
+        }
+
+        // Adiciona a pergunta do usuário ao histórico
+        conversationHistory.push({ role: "user", content: message });
+
+        const completion = await groq.chat.completions.create({
+            messages: conversationHistory,
+            model: "llama-3.3-70b-versatile",
+            temperature: 0.7,
+            max_tokens: 1024,
+        });
+
+        const reply = completion.choices[0]?.message?.content || "Não consegui gerar uma resposta.";
+
+        // Adiciona a resposta da IA ao histórico
+        conversationHistory.push({ role: "assistant", content: reply });
+
+        res.json({ reply });
+    } catch (error) {
+        console.error('Erro na API da Groq:', error);
+        res.status(500).json({ error: 'Erro ao processar sua requisição no servidor.' });
+    }
 });
 
+// Garante que o index.html seja entregue no acesso à raiz
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.listen(port, () => {
+    console.log(`Servidor rodando com sucesso na porta ${port}`);
+});
