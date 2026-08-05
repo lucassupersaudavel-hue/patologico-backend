@@ -3,74 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PATOLÓGICO - IA Biologia</title>
+    <title>PATOLÓGICO - Assistente de Estudos</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+    </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center p-4">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white">
 
-    <header class="w-full max-w-xl flex justify-between items-center border-b border-emerald-500/30 pb-4 mb-6">
-        <h1 class="text-2xl font-black tracking-wider text-emerald-400">PATOLÓGICO</h1>
-        <span class="text-xs text-slate-400">Lab de IA Móvel</span>
+    <!-- Header -->
+    <header class="w-full glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-lg shadow-lg shadow-indigo-500/30">
+                P
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-none tracking-wide bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">PATOLÓGICO</h1>
+                <span class="text-xs text-indigo-400 font-medium">IA de Estudos</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-xs text-slate-400">Online</span>
+        </div>
     </header>
 
-    <main class="w-full max-w-xl bg-slate-800/50 rounded-2xl border border-slate-700 p-4 shadow-xl">
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium mb-1 text-slate-300">Nível Acadêmico:</label>
-                <select id="nivel" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-emerald-400 focus:outline-none">
-                    <option>Ensino Fundamental</option>
-                    <option>Ensino Médio</option>
-                    <option>Universitário</option>
-                    <option>Pós-graduação</option>
-                </select>
+    <!-- Main Chat Area -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 md:p-6 flex flex-col justify-between overflow-hidden">
+        
+        <!-- Messages Box -->
+        <div id="chat-box" class="flex-1 overflow-y-auto space-y-4 pr-2 mb-4">
+            <!-- Mensagem Inicial -->
+            <div class="flex gap-3 items-start">
+                <div class="w-8 h-8 rounded-lg bg-indigo-600/30 border border-indigo-500/30 flex items-center justify-center text-xs font-bold text-indigo-300 shrink-0">
+                    IA
+                </div>
+                <div class="glass p-4 rounded-2xl rounded-tl-none max-w-[85%] text-slate-200 text-sm leading-relaxed shadow-sm">
+                    Olá! Eu sou o <strong>PATOLÓGICO</strong>. Como posso te ajudar nos seus estudos hoje?
+                </div>
             </div>
-
-            <div>
-                <label class="block text-sm font-medium mb-1 text-slate-300">O que quer estudar?</label>
-                <textarea id="pergunta" placeholder="Ex: Como funciona a fotossíntese?" class="w-full h-24 bg-slate-900 border border-slate-600 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none resize-none"></textarea>
-            </div>
-
-            <button onclick="enviarPergunta()" id="btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition">
-                Consultar Inteligência
-            </button>
         </div>
 
-        <div id="resultado" class="hidden mt-6 p-4 bg-slate-900/80 rounded-xl border border-emerald-500/20">
-            <h3 class="text-xs uppercase font-bold text-emerald-400 mb-1">Explicação:</h3>
-            <p id="respostaTexto" class="text-slate-200 leading-relaxed whitespace-pre-line text-sm"></p>
-        </div>
+        <!-- Input Box -->
+        <form id="chat-form" class="relative mt-auto">
+            <div class="glass-input rounded-2xl p-2 flex items-center gap-2 shadow-2xl focus-within:border-indigo-500/50 transition-all">
+                <input 
+                    type="text" 
+                    id="user-input" 
+                    placeholder="Pergunte algo sobre patologia, biologia..." 
+                    class="w-full bg-transparent px-4 py-3 text-sm text-slate-100 placeholder-slate-400 focus:outline-none"
+                    autocomplete="off"
+                />
+                <button 
+                    type="submit" 
+                    class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl transition-colors shrink-0 flex items-center justify-center shadow-md shadow-indigo-600/20 active:scale-95"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+                    </svg>
+                </button>
+            </div>
+        </form>
+
     </main>
 
     <script>
-        async function enviarPergunta() {
-            const pergunta = document.getElementById('pergunta').value;
-            const nivel = document.getElementById('nivel').value;
-            const btn = document.getElementById('btn');
-            const resultado = document.getElementById('resultado');
-            const respostaTexto = document.getElementById('respostaTexto');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const chatBox = document.getElementById('chat-box');
 
-            if (!pergunta.trim()) return;
+        function appendMessage(role, text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `flex gap-3 items-start ${role === 'user' ? 'justify-end' : ''}`;
 
-            btn.innerText = 'Processando...';
-            btn.disabled = true;
+            const isUser = role === 'user';
+            
+            msgDiv.innerHTML = `
+                ${!isUser ? `
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600/30 border border-indigo-500/30 flex items-center justify-center text-xs font-bold text-indigo-300 shrink-0">
+                        IA
+                    </div>
+                ` : ''}
+                <div class="${isUser ? 'bg-indigo-600 text-white rounded-tr-none' : 'glass text-slate-200 rounded-tl-none'} p-4 rounded-2xl max-w-[85%] text-sm leading-relaxed shadow-sm">
+                    ${text}
+                </div>
+                ${isUser ? `
+                    <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-300 shrink-0">
+                        Você
+                    </div>
+                ` : ''}
+            `;
+
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            appendMessage('user', message);
+            userInput.value = '';
+
+            // Indicador visual de carregando
+            const loadingId = 'loading-' + Date.now();
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = loadingId;
+            loadingDiv.className = 'flex gap-3 items-start';
+            loadingDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-lg bg-indigo-600/30 border border-indigo-500/30 flex items-center justify-center text-xs font-bold text-indigo-300 shrink-0">
+                    IA
+                </div>
+                <div class="glass p-4 rounded-2xl rounded-tl-none text-slate-400 text-sm italic animate-pulse">
+                    Pensando...
+                </div>
+            `;
+            chatBox.appendChild(loadingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
 
             try {
-                const res = await fetch('https://patologico-backend.onrender.com/api/perguntar', {
-
+                const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ pergunta, nivel })
+                    body: JSON.stringify({ message })
                 });
-                const data = await res.json();
-                respostaTexto.innerText = data.resposta || 'Erro ao obter resposta.';
-                resultado.classList.remove('hidden');
-            } catch (err) {
-                alert('Certifique-se de que o backend está rodando no Termux!');
-            } finally {
-                btn.innerText = 'Consultar Inteligência';
-                btn.disabled = false;
+
+                const data = await response.json();
+                document.getElementById(loadingId).remove();
+
+                if (data.reply) {
+                    appendMessage('assistant', data.reply);
+                } else {
+                    appendMessage('assistant', 'Ops! Tive um problema ao responder.');
+                }
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                appendMessage('assistant', 'Erro de conexão com o servidor.');
             }
-        }
+        });
     </script>
 </body>
 </html>
